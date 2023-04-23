@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
-import { getMoviesByTitle } from '../utils/api'
+import { getMoviesByTitle } from '../api/api'
 import { Input } from 'antd'
 import MovieList from './MovieList'
+import { getLocalStorage, setLocalStorage } from '../utils/util'
 
 const SearchMovieList: React.FC = () => {
 	const [searchResults, setSearchResults] = useState([])
@@ -10,13 +11,13 @@ const SearchMovieList: React.FC = () => {
 	const [{ loading }, getMoviesByTitleFn] = useAsyncFn(getMoviesByTitle)
 
 	const [preTitle, setTitle] = useState(
-		localStorage.getItem('searchTitle') || 'tokyo'
+		getLocalStorage('searchTitle') || 'tokyo'
 	)
 
 	const { Search } = Input
 
 	const handleSearch = async (title?: string) => {
-		localStorage.setItem('searchTitle', title || '')
+		setLocalStorage('searchTitle', title || '')
 		setTitle(title || '')
 		const res = await getMoviesByTitleFn(title as string)
 		setSearchResults(res)
@@ -28,11 +29,11 @@ const SearchMovieList: React.FC = () => {
 	return (
 		<>
 			<Search
-				placeholder="Input Movie Title keywords (eg: default search title is Tokyo)"
+				placeholder="Input Movie Title keywords"
 				allowClear
 				enterButton="Search"
 				size="large"
-				style={{ width: 800 }}
+				style={{ width: '60%' }}
 				onSearch={handleSearch}
 				defaultValue={preTitle}
 			/>

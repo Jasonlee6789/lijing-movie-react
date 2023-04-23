@@ -4,38 +4,39 @@ import { Movie } from '../interfaces/MovieInterface'
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai'
 import { Link } from 'react-router-dom'
 import { MovieContext } from '../App'
+import { getLocalStorage, setLocalStorage } from '../utils/util'
 interface MovieProps {
 	data?: Movie
 }
 
 const MovieDetail: React.FC<MovieProps> = ({
-	data = JSON.parse(localStorage.getItem('curMovie') || ''),
+	data = getLocalStorage('curMovie' || ''),
 }) => {
 	const { Title, Text } = Typography
+
 	const [favorites, setFavorites] = useState<Movie[]>([])
+
 	const isFavorite = favorites.some((fav) => fav.imdbID === data?.imdbID)
+
 	const { setMovie } = useContext(MovieContext)
 
 	useEffect(() => {
-		const storedFavorites = localStorage.getItem('favorites')
+		const storedFavorites = getLocalStorage('favorites')
 		if (storedFavorites) {
-			setFavorites(JSON.parse(storedFavorites))
+			setFavorites(storedFavorites)
 		}
 	}, [])
 
 	const handleLikeClick = (movie: Movie) => {
 		if (!favorites.some((fav) => fav.imdbID === movie.imdbID)) {
 			setFavorites([...favorites, movie])
-			localStorage.setItem(
-				'favorites',
-				JSON.stringify([...favorites, movie])
-			)
+			setLocalStorage('favorites', JSON.stringify([...favorites, movie]))
 		} else {
 			const filteredFavorites = favorites.filter(
 				(fav) => fav.imdbID !== movie.imdbID
 			)
 			setFavorites(filteredFavorites)
-			localStorage.setItem('favorites', JSON.stringify(filteredFavorites))
+			setLocalStorage('favorites', JSON.stringify(filteredFavorites))
 		}
 	}
 	return (
@@ -45,7 +46,7 @@ const MovieDetail: React.FC<MovieProps> = ({
 					to={`/movie/${data?.imdbID}`}
 					onClick={() => {
 						data && setMovie?.(data)
-						localStorage.setItem('curMovie', JSON.stringify(data))
+						setLocalStorage('curMovie', JSON.stringify(data))
 					}}
 				>
 					<img
@@ -62,8 +63,8 @@ const MovieDetail: React.FC<MovieProps> = ({
 						flex: 1,
 					}}
 				>
-					<Title level={5} style={{ marginBottom: 5 }}>
-						Title: {data?.Title}
+					<Title type="success" style={{ marginBottom: 5 }}>
+						{data?.Title}
 					</Title>
 					<Text type="secondary" style={{ marginBottom: 5 }}>
 						Year: {data?.Year}
