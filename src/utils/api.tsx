@@ -9,3 +9,10 @@ export const getMoviesByTitle = async (title: string) => {
 	console.log(response.data.Search)
 	return response.data.Search
 }
+
+export const getMovieDetailById = async (id: string) => {
+	const response = await axios.get(
+		`http://www.omdbapi.com/?apikey=${API_KEY}&i=${id}`
+	)
+	return response.data
+}

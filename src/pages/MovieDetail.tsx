@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Card, Typography } from 'antd'
 import { Movie } from '../interfaces/MovieInterface'
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
+import { MovieContext } from '../App'
 interface MovieProps {
-	data: Movie
+	data?: Movie
 }
 
-const MovieDetail: React.FC<MovieProps> = ({ data }) => {
+const MovieDetail: React.FC<MovieProps> = ({
+	data = JSON.parse(localStorage.getItem('curMovie') || ''),
+}) => {
 	const { Title, Text } = Typography
 	const [favorites, setFavorites] = useState<Movie[]>([])
-	const isFavorite = favorites.some((fav) => fav.imdbID === data.imdbID)
+	const isFavorite = favorites.some((fav) => fav.imdbID === data?.imdbID)
+	const { setMovie } = useContext(MovieContext)
 
 	useEffect(() => {
 		const storedFavorites = localStorage.getItem('favorites')
@@ -35,16 +40,20 @@ const MovieDetail: React.FC<MovieProps> = ({ data }) => {
 	}
 	return (
 		<Card style={{ width: '100%' }}>
-			<a
-				href={data.url}
-				style={{ display: 'flex', alignItems: 'center' }}
-			>
-				<img
-					src={data.Poster}
-					alt={data.Title}
-					style={{ width: 200, height: 300, margin: 10 }}
-				/>
-
+			<div style={{ display: 'flex', alignItems: 'center' }}>
+				<Link
+					to={`/movie/${data?.imdbID}`}
+					onClick={() => {
+						data && setMovie?.(data)
+						localStorage.setItem('curMovie', JSON.stringify(data))
+					}}
+				>
+					<img
+						src={data?.Poster}
+						alt={data?.Title}
+						style={{ width: 200, height: 300, margin: 10 }}
+					/>
+				</Link>
 				<div
 					style={{
 						display: 'flex',
@@ -54,25 +63,25 @@ const MovieDetail: React.FC<MovieProps> = ({ data }) => {
 					}}
 				>
 					<Title level={5} style={{ marginBottom: 5 }}>
-						Title: {data.Title}
+						Title: {data?.Title}
 					</Title>
 					<Text type="secondary" style={{ marginBottom: 5 }}>
-						Year: {data.Year}
+						Year: {data?.Year}
 					</Text>
 				</div>
 
 				{isFavorite ? (
 					<AiFillHeart
-						onClick={() => handleLikeClick(data)}
-						style={{ fontSize: 30 }}
+						onClick={() => data && handleLikeClick(data)}
+						style={{ fontSize: 30, color: 'red' }}
 					/>
 				) : (
 					<AiOutlineHeart
-						onClick={() => handleLikeClick(data)}
+						onClick={() => data && handleLikeClick(data)}
 						style={{ fontSize: 30 }}
 					/>
 				)}
-			</a>
+			</div>
 		</Card>
 	)
 }
